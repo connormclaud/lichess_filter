@@ -1,0 +1,18 @@
+{
+    "manifest_version": 3,
+    "name": "Lichess Tournament Filter",
+    "version": "1.0",
+    "description": "Filter tournaments on Lichess.org",
+    "permissions": [],
+    "content_scripts": [
+        {
+            "matches": [
+                "https://lichess.org/tournament*"
+            ],
+            "js": [
+                "dist/content.js"
+            ],
+            "run_at": "document_end"
+        }
+    ]
+}
