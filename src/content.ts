@@ -13,88 +13,108 @@ function init() {
     // Inject styles
     injectStyles();
 
-    let currentFilter: FilterType = 'all';
+    // Retrieve stored filter
+    chrome.storage.local.get(['filter'], (result) => {
+        let currentFilter: FilterType = result.filter || 'all';
 
-    // Create and inject filter buttons
-    const filterContainer = createFilterButtons((type: FilterType) => {
-        currentFilter = type;
-        applyFilter(type);
-    });
+        // Determine injection point
+        const upcomingContainer = document.querySelector('.tour-chart');
+        const table = mainContainer.querySelector('table.slist');
 
-    // Determine injection point
-    const upcomingContainer = document.querySelector('.tour-chart');
-    const table = mainContainer.querySelector('table.slist');
+        let injectionPoint: Element | null = null;
 
-    let injectionPoint: Element | null = null;
-
-    if (upcomingContainer && upcomingContainer.parentElement) {
-        injectionPoint = upcomingContainer;
-    } else if (table) {
-        injectionPoint = table;
-    }
-
-    if (injectionPoint && injectionPoint.parentElement) {
-        injectionPoint.parentElement.insertBefore(filterContainer, injectionPoint);
-        console.log('Lichess Filter: Buttons injected');
-    }
-
-    // Observer for dynamic content loading (Lichess uses websockets/SPA navigation)
-    // We need two observers:
-    // 1. To re-inject buttons if they disappear (navigation)
-    // 2. To re-apply filter if the list content changes (updates)
-
-    const bodyObserver = new MutationObserver(() => {
-        if (!document.querySelector('.lichess-filter-group')) {
-            const currentUpcoming = document.querySelector('.tour-chart');
-            const currentTable = document.querySelector('table.slist');
-            const target = currentUpcoming || currentTable;
-
-            if (target && target.parentElement) {
-                target.parentElement.insertBefore(filterContainer, target);
-                console.log('Lichess Filter: Buttons re-injected');
-                // Re-apply filter after re-injection
-                applyFilter(currentFilter);
-            }
+        if (upcomingContainer && upcomingContainer.parentElement) {
+            injectionPoint = upcomingContainer;
+        } else if (table) {
+            injectionPoint = table;
         }
-    });
 
-    bodyObserver.observe(document.body, { childList: true, subtree: true });
-
-    // Observer for list updates
-    const listObserver = new MutationObserver((mutations) => {
-        let shouldUpdate = false;
-        mutations.forEach(mutation => {
-            if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-                shouldUpdate = true;
-            }
-            // If Lichess removes our class, re-apply
-            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-                const target = mutation.target as HTMLElement;
-                // If we are filtering and the element should be hidden but isn't, update
-                if (currentFilter !== 'all' && !target.classList.contains('lichess-filter-hidden')) {
+        // Observer for list updates
+        const listObserver = new MutationObserver((mutations) => {
+            let shouldUpdate = false;
+            mutations.forEach(mutation => {
+                if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
                     shouldUpdate = true;
+                }
+                // If Lichess removes our class, re-apply
+                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                    const target = mutation.target as HTMLElement;
+                    // If we are filtering and the element should be hidden but isn't, update
+                    if (currentFilter !== 'all' && !target.classList.contains('lichess-filter-hidden')) {
+                        shouldUpdate = true;
+                    }
+                }
+            });
+
+            if (shouldUpdate) {
+                applyFilterSafe(currentFilter);
+            }
+        });
+
+        const startObserving = () => {
+            // Observe the containers if they exist
+            if (upcomingContainer) {
+                // The inner container usually holds the items
+                const inner = upcomingContainer.querySelector('.tour-chart__inner');
+                if (inner) {
+                    // Observe childList for new items, and attributes (class) for existing items to prevent override
+                    listObserver.observe(inner, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
+                }
+            }
+            if (table) {
+                const tbody = table.querySelector('tbody');
+                if (tbody) listObserver.observe(tbody, { childList: true });
+            }
+        };
+
+        const applyFilterSafe = (type: FilterType) => {
+            // Disconnect observer to prevent infinite loop (since we are modifying classes)
+            listObserver.disconnect();
+            applyFilter(type);
+            // Re-connect observer
+            startObserving();
+        };
+
+        // Create and inject filter buttons
+        const filterContainer = createFilterButtons((type: FilterType) => {
+            currentFilter = type;
+            applyFilterSafe(type);
+            // Save filter
+            chrome.storage.local.set({ filter: type });
+        }, currentFilter);
+
+        if (injectionPoint && injectionPoint.parentElement) {
+            injectionPoint.parentElement.insertBefore(filterContainer, injectionPoint);
+            console.log('Lichess Filter: Buttons injected');
+            // Apply initial filter
+            applyFilterSafe(currentFilter);
+        }
+
+        // Observer for dynamic content loading (Lichess uses websockets/SPA navigation)
+        // We need two observers:
+        // 1. To re-inject buttons if they disappear (navigation)
+        // 2. To re-apply filter if the list content changes (updates)
+
+        const bodyObserver = new MutationObserver(() => {
+            if (!document.querySelector('.lichess-filter-group')) {
+                const currentUpcoming = document.querySelector('.tour-chart');
+                const currentTable = document.querySelector('table.slist');
+                const target = currentUpcoming || currentTable;
+
+                if (target && target.parentElement) {
+                    target.parentElement.insertBefore(filterContainer, target);
+                    console.log('Lichess Filter: Buttons re-injected');
+                    // Re-apply filter after re-injection
+                    applyFilterSafe(currentFilter);
                 }
             }
         });
 
-        if (shouldUpdate) {
-            applyFilter(currentFilter);
-        }
-    });
+        bodyObserver.observe(document.body, { childList: true, subtree: true });
 
-    // Observe the containers if they exist
-    if (upcomingContainer) {
-        // The inner container usually holds the items
-        const inner = upcomingContainer.querySelector('.tour-chart__inner');
-        if (inner) {
-            // Observe childList for new items, and attributes (class) for existing items to prevent override
-            listObserver.observe(inner, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
-        }
-    }
-    if (table) {
-        const tbody = table.querySelector('tbody');
-        if (tbody) listObserver.observe(tbody, { childList: true });
-    }
+        // Start observing
+        startObserving();
+    });
 }
 
 // Run init when DOM is ready

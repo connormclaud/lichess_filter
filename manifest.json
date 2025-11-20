@@ -3,7 +3,9 @@
     "name": "Lichess Tournament Filter",
     "version": "1.0",
     "description": "Filter tournaments on Lichess.org",
-    "permissions": [],
+    "permissions": [
+        "storage"
+    ],
     "content_scripts": [
         {
             "matches": [
