@@ -7,21 +7,33 @@ export function createFilterButtons(onFilter: (type: FilterType) => void, initia
   container.style.display = 'flex';
   container.style.gap = '0.5rem';
 
-  const filters: { label: string; type: FilterType }[] = [
+  const filters: { label: string; type: FilterType; icon?: string }[] = [
     { label: 'All', type: 'all' },
-    { label: 'Bullet', type: 'bullet' },
-    { label: 'Blitz', type: 'blitz' },
-    { label: 'Rapid', type: 'rapid' },
-    { label: 'Classical', type: 'classical' },
-    { label: 'Variants', type: 'variant' },
+    { label: 'Bullet', type: 'bullet', icon: '' },
+    { label: 'Blitz', type: 'blitz', icon: '' },
+    { label: 'Rapid', type: 'rapid', icon: '' },
+    { label: 'Classical', type: 'classical', icon: '' },
+    { label: 'Variants', type: 'variant', icon: '' },
   ];
 
-  filters.forEach(({ label, type }) => {
+  filters.forEach(({ label, type, icon }) => {
     const button = document.createElement('button');
-    button.textContent = label;
     button.className = 'button button-empty'; // Lichess style classes
     button.style.padding = '0.5rem 1rem';
     button.style.cursor = 'pointer';
+    button.style.display = 'flex';
+    button.style.alignItems = 'center';
+    button.style.gap = '0.5rem';
+
+    if (icon) {
+      const iconSpan = document.createElement('span');
+      iconSpan.setAttribute('data-icon', icon);
+      button.appendChild(iconSpan);
+    }
+
+    const textSpan = document.createElement('span');
+    textSpan.textContent = label;
+    button.appendChild(textSpan);
 
     // Add active state logic if needed, for now just simple buttons
     button.onclick = () => {
