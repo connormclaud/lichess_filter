@@ -47,6 +47,9 @@ export function injectStyles() {
       color: #fff;
       border-color: #3692e7;
     }
+    .lichess-filter-hidden {
+      display: none !important;
+    }
   `;
     document.head.appendChild(style);
 }
