@@ -22,3 +22,7 @@ A Chrome extension that adds filter capabilities to Lichess tournament pages, al
 1.  Open Chrome and navigate to `chrome://extensions`.
 2.  Enable "Developer mode".
 3.  Click "Load unpacked" and select the `dist` directory.
+
+### Production
+
+Extension is published in [Google Chrome Store](https://chromewebstore.google.com/detail/lichess-tournament-filter/docfojhokchccjdfejcokejngpjjeenf)
