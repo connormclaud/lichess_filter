@@ -18,7 +18,6 @@ A Chrome extension that adds filter capabilities to Lichess tournament pages, al
 1.  Clone the repository.
 2.  Run `npm install`.
 3.  Run `npm run build`.
-4.  Run `npm run package` to generate `extension.zip` for the store.
 
 ### Installation
 1.  Open Chrome and navigate to `chrome://extensions`.

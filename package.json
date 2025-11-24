@@ -4,10 +4,12 @@
   "description": "Lichess Tournament Filter Chrome Extension",
   "scripts": {
     "build": "vite build",
-    "dev": "vite build --watch"
+    "dev": "vite build --watch",
+    "package": "npm run build && bestzip extension.zip manifest.json dist/* README.md"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.260",
+    "bestzip": "^2.2.1",
     "typescript": "^5.3.3",
     "vite": "^5.0.12"
   }
