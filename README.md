@@ -5,6 +5,7 @@ A Chrome extension that adds filter capabilities to Lichess tournament pages, al
 ## Features
 - Filter tournaments by time control (Bullet, Blitz, Rapid, Classical).
 - Filter by variant.
+- **Storm Dashboard**: Adds a "Time per Move" column to the runs table on the [Puzzle Storm Dashboard](https://lichess.org/storm/dashboard).
 - Seamless integration with Lichess UI.
 
 ## Development
