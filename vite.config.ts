@@ -6,11 +6,12 @@ export default defineConfig({
         rollupOptions: {
             input: {
                 content: resolve(__dirname, 'src/content.ts'),
+                storm: resolve(__dirname, 'src/storm.ts'),
             },
             output: {
                 entryFileNames: '[name].js',
                 dir: 'dist',
-                format: 'iife'
+                format: 'es'
             }
         },
         outDir: 'dist',

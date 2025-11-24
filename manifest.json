@@ -15,6 +15,15 @@
                 "dist/content.js"
             ],
             "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "https://lichess.org/storm/dashboard*"
+            ],
+            "js": [
+                "dist/storm.js"
+            ],
+            "run_at": "document_end"
         }
     ]
 }
