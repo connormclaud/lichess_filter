@@ -19,7 +19,7 @@ function initStorm() {
             if (timeHeader) {
                 const tpmHeader = document.createElement('th');
                 tpmHeader.className = 'tpm-header';
-                tpmHeader.textContent = 'TpM';
+                tpmHeader.textContent = 'Time per Move';
                 tpmHeader.title = 'Time per Move';
                 // Insert after Time
                 headerRow.insertBefore(tpmHeader, timeHeader.nextSibling);
